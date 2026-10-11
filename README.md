@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Contenerización de Aplicación Next.js con Docker
 
-## Getting Started
+Este repositorio contiene una aplicación Next.js contenerizada utilizando Docker mediante una estrategia de Multi-Stage Build, lo que garantiza un entorno de desarrollo e implementación aislado, portable, ligero y consistente.
 
-First, run the development server:
+🛠️ Requisitos Previos
+Node.js (v20+)
+Docker Desktop ejecutándose en el sistema
+🚀 Instrucciones de Uso
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Construir la imagen de Docker
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para construir la imagen optimizada utilizando la configuración del Dockerfile, ejecuta el siguiente comando en la raíz del proyecto:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+bash
+docker build -t mi-app-nextjs . 2. Ejecutar el contenedor
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Inicia el contenedor mapeando el puerto 3000 de tu máquina local con el puerto 3000 del contenedor:
 
-## Learn More
+bash
+docker run -p 3000:3000 mi-app-nextjs
 
-To learn more about Next.js, take a look at the following resources:
+Accede a la aplicación desde cualquier navegador ingresando a:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+👉 http://localhost:3000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+📦 Arquitectura del Dockerfile (Multi-Stage Build)
 
-## Deploy on Vercel
+El archivo Dockerfile utiliza 3 etapas estructuradas para optimizar el tamaño de la imagen final y mejorar la seguridad:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+deps (Etapa de Dependencias): Utiliza la imagen base node:20-alpine para instalar únicamente las dependencias de producción y desarrollo definidas en el package-lock.json mediante npm ci.
+builder (Etapa de Compilación): Copia el código fuente del proyecto y ejecuta el proceso de compilación npm run build para generar los archivos compilados en modo standalone.
+runner (Etapa de Producción): Crea una imagen limpia en entorno de producción (NODE_ENV=production), configura un usuario del sistema sin privilegios root (nextjs) por buenas prácticas de seguridad y ejecuta el servidor ligero mediante node server.js.
